@@ -1,0 +1,1 @@
+from dask_kubernetes.conftest import k8s_cluster
