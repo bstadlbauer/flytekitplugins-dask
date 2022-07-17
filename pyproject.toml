@@ -5,7 +5,7 @@ description = "A pure Python flytekit plugin to work with dask clusters"
 authors = ["Bernhard Stadlbauer <11799671+bstadlbauer@users.noreply.github.com>"]
 license = "MIT"
 packages = [
-    { include = "bstadlbauer", from = "." },
+    { include = "bstadlbauer", from = "src" },
 ]
 
 [tool.poetry.dependencies]
@@ -25,6 +25,14 @@ addopts = "-s --keep-cluster"
 
 [tool.isort]
 profile = "black"
+
+[tool.semantic_release]
+branch = "main"
+version_toml = "pyproject.toml:tool.poetry.version"
+major_on_zero = false
+build_command = "poetry build"
+commit_subject = "ci: Release {version}"
+commit_message = "ci: Release {version}"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]

@@ -40,7 +40,7 @@ RUN --mount=type=cache,target=/root/.cache \
     poetry install --no-root
 
 COPY ./tests/ ./tests
-COPY ./bstadlbauer/ ./bstadlbauer
+COPY ./src/ ./src
 RUN poetry install
 ENV PYTHONPATH "/root:$PYTHONPATH"
 

@@ -11,14 +11,49 @@ To install the plugin, run
 pip install bstadlbauer.flytekitplugins-dask
 ```
 The plugin was prefixed with `bstadlbauer` to avoid a naming conflict with the future "official"
-`flytekitplugins-dask`, which will by the `flytekit` counterpart to the backend plugin
+`flytekitplugins-dask`, which will be the `flytekit` counterpart to the backend plugin
+
+### Task definition
+To create a `dask` `flyte` task, the only thing you have to do now is to specify the `task_type` to be of kind `Dask`.
+Flyte will then handle the lifecycle of the ephemeral `dask` cluster for you.
+```python
+import flytekit
+from flytekit import task, Resources
+from bstadlbauer.flytekitplugins.dask import Dask
+
+
+@task(
+    task_config=Dask(
+        n_workers=1,
+        requests=Resources(cpu="100m", mem="200Mi"),
+        limits=Resources(cpu="100m", mem="200Mi"),
+        env={"foo": "bar"},
+        namespace="my-namespace",
+    )
+)
+def dask_test_task_with_configuration():
+    ctx = flytekit.current_context()
+    # The client will be a regular distributed.Client() in the local case. Thus, you can also configure it
+    # to point to an existing cluster, e.g. by setting the `DASK_SCHEDULER_ADDRESS` environment variable
+    client = ctx.dask_client  # type: Client
+
+    # `cluster` will be `None` in the local case
+    cluster = ctx.dask_cluster  # type: Optional[KubeCluster]
+```
 
 ### K8s requirements
 This plugin is built on top of the [dask k8s operator](https://kubernetes.dask.org/en/latest/operator.html),
 and thus requires the operator to be up and running within your cluster.
 
-Please also make sure that the pods that you are running have permissions to create custom resources
-within the
+Please also make sure that the pods that you are running have permissions to create `DaskCluster` custom resources
+for the `kubernetes.dask.org` API.
+
+### Docker image requirements
+As it is beneficial to use the same docker image (i.e. same Python environment) for all code related to `dask`,
+the plugin expects an environment variable `FLYTEKITPLUGIN_DASK_DOCKER_IMAGE` to be set within the docker image
+which runs the Flyte task. It will then use the image from this environment variable to spin up the _scheduler_ as
+well as the _worker_ pods of the ephemeral `dask` cluster.
+
 
 # Contributing
 ## Development setup

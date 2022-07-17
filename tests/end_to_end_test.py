@@ -15,5 +15,5 @@ def _dask_workflow(
 
 
 def test_dask_workflow(flyte_remote: FlyteRemote, _dask_workflow: FlyteWorkflow):
-    flyte_remote.execute_remote_wf(_dask_workflow, inputs={}, wait=True)
-    # FIXME: Check for successful run
+    execution = flyte_remote.execute_remote_wf(_dask_workflow, inputs={}, wait=True)
+    assert execution.error is None

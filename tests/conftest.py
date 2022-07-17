@@ -18,7 +18,6 @@ check_dependency("helm")
 check_dependency("kubectl")
 check_dependency("flytectl")
 
-# TODO: add constant for flyte and dask version
 _logger = logging.getLogger(__name__)
 
 _ENV_FILE = Path(__file__).parent.parent / ".env"

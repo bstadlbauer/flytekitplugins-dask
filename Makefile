@@ -18,12 +18,10 @@ setup:
 lint:
 	poetry run pre-commit run --all-files
 
-# FIXME: Try this
 .PHONY: test
 test:
 	poetry run pytest
 
-# FIXME: Try this
 .PHONY: shutdown-cluster
 shutdown-cluster:
 	cd tests/.pytest-kind/pytest-kind \

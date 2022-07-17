@@ -91,16 +91,18 @@ class DaskFunctionTask(PythonFunctionTask[Dask]):
                 ),
                 env=self.task_config.env,
             )
-            for worker_group in self.task_config.additional_worker_groups:
-                cluster.add_worker_group(
-                    name=worker_group.name,
-                    n_workers=worker_group.n_workers,
-                    image=worker_group.image or _get_docker_image(),
-                    resources=_convert_flyte_resources_to_dict(
-                        worker_group.requests, worker_group.limits
-                    ),
-                    env=worker_group.env,
-                )
+            # FIXME: Re-add as soon as there is good worker group support in
+            #        `dask-kubernetes`
+            # for worker_group in self.task_config.additional_worker_groups:
+            #     cluster.add_worker_group(
+            #         name=worker_group.name,
+            #         n_workers=worker_group.n_workers,
+            #         image=worker_group.image or _get_docker_image(),
+            #         resources=_convert_flyte_resources_to_dict(
+            #             worker_group.requests, worker_group.limits
+            #         ),
+            #         env=worker_group.env,
+            #     )
             self._cluster = cluster
             client = Client(cluster)
         self.dask_client = client
