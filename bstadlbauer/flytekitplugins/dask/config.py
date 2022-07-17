@@ -1,5 +1,7 @@
-from dataclasses import dataclass
-from typing import Optional, Dict
+from dataclasses import dataclass, field
+from typing import Dict, List, Optional
+
+from flytekit import Resources
 
 
 @dataclass
@@ -70,6 +72,4 @@ class Dask:
     limits: Optional[Resources] = None
     env: Optional[Dict[str, str]] = None
     namespace: str = "dask"
-    # FIXME: Temporarily removed, does not seem to work
-    # Issue is tracked here: https://github.com/pachama/pachama-flyte/issues/2
-    # additional_worker_groups: List[WorkerGroupConfig] = field(default_factory=list)
+    additional_worker_groups: List[WorkerGroup] = field(default_factory=list)

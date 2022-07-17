@@ -1,6 +1,4 @@
 import os
-
-from dataclasses import dataclass
 from typing import Any, Callable, Dict, Optional
 
 from distributed import Client
@@ -10,9 +8,12 @@ from flytekit import (
     PythonFunctionTask,
     Resources,
 )
-from flytekit.extend import ExecutionState, TaskPlugins
+from flytekit.extend import ExecutionState
 
+from bstadlbauer.flytekitplugins.dask import Dask
+from bstadlbauer.flytekitplugins.dask.constants import DOCKER_IMAGE_ENV_VAR
 from bstadlbauer.flytekitplugins.dask.errors import UnsupportedResourcesError
+
 
 def _get_docker_image() -> str:
     docker_image = os.getenv(DOCKER_IMAGE_ENV_VAR, "")
@@ -21,9 +22,6 @@ def _get_docker_image() -> str:
             f"Could not determine the current docker image to use for the dask cluster."
             f"Please either make sure that the '{DOCKER_IMAGE_ENV_VAR}' is set or to "
             f"provide the `image` argument in the corresponding `Dask()` configuration."
-            f""
-            f"For a tutorial on how to do so, checkout: "
-            f"https://github.com/pachama/pachama-flyte/blob/main/docs/adding_docker_image_env_var.md"
         )
     return docker_image
 
@@ -94,18 +92,16 @@ class DaskFunctionTask(PythonFunctionTask[Dask]):
                 ),
                 env=self.task_config.env,
             )
-            # FIXME: Temporarily removed, does not seem to work
-            # Issue is tracked here: https://github.com/pachama/pachama-flyte/issues/2
-            # for worker_group in self.task_config.additional_worker_groups:
-            #     cluster.add_worker_group(
-            #         name=worker_group.name,
-            #         n_workers=worker_group.n_workers,
-            #         image=worker_group.image or _get_docker_image(),
-            #         resources=_convert_flyte_resources_to_dict(
-            #             worker_group.requests, worker_group.limits
-            #         ),
-            #         env=worker_group.env,
-            #     )
+            for worker_group in self.task_config.additional_worker_groups:
+                cluster.add_worker_group(
+                    name=worker_group.name,
+                    n_workers=worker_group.n_workers,
+                    image=worker_group.image or _get_docker_image(),
+                    resources=_convert_flyte_resources_to_dict(
+                        worker_group.requests, worker_group.limits
+                    ),
+                    env=worker_group.env,
+                )
             self._cluster = cluster
             client = Client(cluster)
         self.dask_client = client
@@ -122,6 +118,3 @@ class DaskFunctionTask(PythonFunctionTask[Dask]):
         if self._cluster is not None:
             self._cluster.close()
         return rval
-
-
-TaskPlugins.register_pythontask_plugin(Dask, DaskFunctionTask)
