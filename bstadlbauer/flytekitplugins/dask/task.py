@@ -1,6 +1,7 @@
 import os
 from typing import Any, Callable, Dict, Optional
 
+from dask_kubernetes.experimental import KubeCluster
 from distributed import Client
 from flytekit import (
     ExecutionParameters,
@@ -40,7 +41,7 @@ def _fail_with_unsupported_resources(resources: Resources):
 
 def _convert_flyte_resources_to_dict(
     requests: Optional[Resources], limits: Optional[Resources]
-) -> Optional[Dict[str, Dict[str, str]]]:
+) -> Dict[str, Dict[str, str]]:
     resources_dict = {}
     if requests is not None:
         _fail_with_unsupported_resources(requests)
@@ -48,8 +49,6 @@ def _convert_flyte_resources_to_dict(
     if limits is not None:
         _fail_with_unsupported_resources(limits)
         resources_dict["limits"] = {"cpu": limits.cpu, "memory": limits.mem}
-    if resources_dict == {}:
-        return None
     return resources_dict
 
 
