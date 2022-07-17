@@ -1,0 +1,4 @@
+.idea
+**/.pytest-kind
+**/.kube
+**/__pycache__

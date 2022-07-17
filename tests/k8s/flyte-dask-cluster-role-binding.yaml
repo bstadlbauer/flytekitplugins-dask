@@ -1,0 +1,18 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: flyte-dask-operator-operator-access
+subjects:
+  - kind: ServiceAccount
+    name: default
+    namespace: dask-test-development
+  - kind: ServiceAccount
+    name: default
+    namespace: dask-test-staging
+  - kind: ServiceAccount
+    name: default
+    namespace: dask-test-production
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: dask-dask-kubernetes-operator-role-cluster
