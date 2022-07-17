@@ -1,3 +1,4 @@
+import logging
 import os
 import subprocess
 import uuid
@@ -18,6 +19,7 @@ check_dependency("kubectl")
 check_dependency("flytectl")
 
 # TODO: add constant for flyte and dask version
+_logger = logging.getLogger(__name__)
 
 _ENV_FILE = Path(__file__).parent.parent / ".env"
 
@@ -43,6 +45,7 @@ def _k8s_cluster(kind_cluster: KindCluster) -> Generator[KindCluster, None, None
 
 @pytest.fixture(scope="session")
 def _docker_image(_k8s_cluster: KindCluster) -> str:
+    _logger.info("Starting to build test docker image")
     image_name = f"flytekitplugins-dask:dev-{datetime.now().strftime('%Y-%m-%d-%H-%M')}"
     os.environ["DOCKER_BUILDKIT"] = "1"
     subprocess.check_output(
@@ -59,12 +62,14 @@ def _docker_image(_k8s_cluster: KindCluster) -> str:
         ],
         cwd=str(_TESTS_DIR_PATH.parent),
     )
+    _logger.info("Finished to build test docker image")
     _k8s_cluster.load_docker_image(image_name)
     return image_name
 
 
 @pytest.fixture(scope="session")
 def _dask_operator_installation(_k8s_cluster: KindCluster) -> None:
+    _logger.info("Installing the dask operator into the kind cluster")
     subprocess.check_output(["helm", "repo", "add", "dask", "https://helm.dask.org"])
     subprocess.check_output(
         [
@@ -81,6 +86,7 @@ def _dask_operator_installation(_k8s_cluster: KindCluster) -> None:
             "image.tag=2022.5.2",
         ],
     )
+    _logger.info("Finished installing dask operator into the kind cluster")
 
 
 @pytest.fixture(scope="session")
@@ -88,6 +94,7 @@ def _flyte_installation(
     _k8s_cluster: KindCluster,
     _dask_operator_installation: None,
 ) -> Generator[None, None, None]:
+    _logger.info("Installing flyte into the kind cluster")
     flyte_namespace = "flyte"
     subprocess.check_output(
         ["helm", "repo", "add", "flyteorg", "https://helm.flyte.org"]
@@ -119,6 +126,7 @@ def _flyte_installation(
         flyte_namespace,
         local_port=_MINIO_PORT,
     ):
+        _logger.info("Finished installing flyte into the kind cluster")
         yield
 
 
@@ -127,6 +135,8 @@ def _flyte_project(_flyte_installation: None) -> None:
     output = subprocess.run(
         [
             "flytectl",
+            "--admin.endpoint",
+            _FLYTE_ADMIN_ENDPOINT,
             "create",
             "project",
             "--id",
