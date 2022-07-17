@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "bstadlbauer.flytekitplugins-dask"
-version = "0.0.0"
+version = "0.1.0"
 description = "A pure Python flytekit plugin to work with dask clusters"
 authors = ["Bernhard Stadlbauer <11799671+bstadlbauer@users.noreply.github.com>"]
 license = "MIT"
