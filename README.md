@@ -1,3 +1,5 @@
+> This repository has been archived as it has been superseded by the official [dask plugin](https://github.com/flyteorg/flytekit/tree/master/plugins/flytekit-dask)!
+
 # `flytekitplugins-dask`
 This plugin is a pure `flytekit` plugin which enables `dask` task support. This is intended
 to be a stepping stone, until the work for the (more elaborate) backend (i.e. Flytepropeller)
